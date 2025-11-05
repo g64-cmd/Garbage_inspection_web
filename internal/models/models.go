@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"time"
+)
+
 // 基于 design.md 3.1.1 的状态上报 (边缘端 -> 云端)
 type VehicleStatus struct {
 	Timestamp int64    `json:"timestamp"`
@@ -45,4 +50,40 @@ type DecisionResult struct {
 type SendCommandRequest struct {
 	VehicleID string `json:"vehicle_id" binding:"required"`
 	Command   string `json:"command" binding:"required"`
+}
+
+// User 对应于数据库中的 'users' 表 (design.md 5.)
+type User struct {
+	ID             string `json:"id"`
+	Username       string `json:"username"`
+	HashedPassword string `json:"-"` // (密码哈希不应被序列化到 JSON 中)
+}
+
+// Vehicle 对应于数据库中的 'vehicles' 表
+type Vehicle struct {
+	ID            string         `json:"id"`
+	Name          string         `json:"name"`
+	Model         string         `json:"model"`
+	CurrentStatus *VehicleStatus `json:"current_status"` // 使用指针以允许 null
+}
+
+// VehicleTelemetry 对应于 'vehicle_telemetry' 表，用于存储历史轨迹点
+type VehicleTelemetry struct {
+	ID        int64     `json:"id"`
+	VehicleID string    `json:"vehicle_id"`
+	Timestamp time.Time `json:"timestamp"`
+	Latitude  float64   `json:"latitude"`
+	Longitude float64   `json:"longitude"`
+	Battery   float64   `json:"battery"`
+	State     string    `json:"state"`
+}
+
+// DecisionLog 对应于数据库中的 'decision_logs' 表
+type DecisionLog struct {
+	ID              string          `json:"id"`
+	VehicleID       string          `json:"vehicle_id"`
+	Timestamp       time.Time       `json:"timestamp"`
+	ImageURL        string          `json:"image_url"`
+	ServerDecision  json.RawMessage `json:"server_decision"`
+	RequestMetadata json.RawMessage `json:"request_metadata"`
 }
