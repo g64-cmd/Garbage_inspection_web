@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log"
 	"net/http"
 	"patrol-cloud/internal/services"
 
@@ -33,6 +34,9 @@ func (h *AuthHandler) HandleLogin(c *gin.Context) {
 
 	token, err := h.authSvc.Login(c.Request.Context(), req.Username, req.Password)
 	if err != nil {
+		// Add detailed logging for debugging
+		log.Printf("[AUTH_DEBUG] Login failed for user '%s'. Reason: %v", req.Username, err)
+
 		switch err {
 		case services.ErrUserNotFound, services.ErrInvalidCredentials:
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid username or password"})

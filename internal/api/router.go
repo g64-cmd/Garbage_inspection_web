@@ -59,6 +59,7 @@ func SetupRouter(
 			authRequired.GET("/vehicles/:id/telemetry", telemetryHandler.HandleGetTelemetry)
 
 			// 日志
+			authRequired.GET("/decision-logs", logHandler.HandleListAllDecisionLogs) // New global log route
 			authRequired.GET("/vehicles/:id/decision-logs", logHandler.HandleListDecisionLogs)
 		}
 	}

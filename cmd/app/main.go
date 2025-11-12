@@ -10,7 +10,7 @@ import (
 	"patrol-cloud/internal/background"
 	"patrol-cloud/internal/config"
 	"patrol-cloud/internal/db"
-	"patrol-cloud/internal/models"
+	//"patrol-cloud/internal/models"
 	"patrol-cloud/internal/services"
 	"patrol-cloud/internal/storage"
 	"patrol-cloud/internal/tasks"
@@ -18,9 +18,9 @@ import (
 	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
+	//"github.com/gin-gonic/gin"
+	//"github.com/google/uuid"
+	//"golang.org/x/crypto/bcrypt"
 )
 
 // main 是应用程序的入口点。

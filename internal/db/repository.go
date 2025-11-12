@@ -20,6 +20,7 @@ type Repository interface {
 	// Decision Log methods
 	LogDecision(ctx context.Context, result *models.DecisionResult, imageURL string, metadata models.DecisionRequestMetadata) error
 	ListDecisionLogsByVehicleID(ctx context.Context, vehicleID string, page, pageSize int) ([]*models.DecisionLog, int, error)
+	ListAllDecisionLogs(ctx context.Context) ([]*models.DecisionLog, error)
 
 	// Vehicle methods
 	CreateVehicle(ctx context.Context, vehicle *models.Vehicle) error
@@ -132,6 +133,30 @@ func (r *postgresRepository) ListDecisionLogsByVehicleID(ctx context.Context, ve
 	}
 
 	return logs, total, nil
+}
+
+func (r *postgresRepository) ListAllDecisionLogs(ctx context.Context) ([]*models.DecisionLog, error) {
+	query := `
+		SELECT id, vehicle_id, timestamp, image_url, server_decision, request_metadata
+		FROM decision_logs
+		ORDER BY "timestamp" DESC
+	`
+	rows, err := r.pool.Query(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []*models.DecisionLog
+	for rows.Next() {
+		var log models.DecisionLog
+		if err := rows.Scan(&log.ID, &log.VehicleID, &log.Timestamp, &log.ImageURL, &log.ServerDecision, &log.RequestMetadata); err != nil {
+			return nil, err
+		}
+		logs = append(logs, &log)
+	}
+
+	return logs, nil
 }
 
 // --- Vehicle Methods ---

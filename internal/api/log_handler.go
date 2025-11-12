@@ -23,8 +23,19 @@ func (h *LogHandler) HandleListDecisionLogs(c *gin.Context) {
 	vehicleID := c.Param("id")
 
 	// 解析分页参数
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+	pageStr := c.DefaultQuery("page", "1")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid 'page' parameter: must be an integer"})
+		return
+	}
+
+	pageSizeStr := c.DefaultQuery("pageSize", "10")
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid 'pageSize' parameter: must be an integer"})
+		return
+	}
 
 	if page < 1 {
 		page = 1
@@ -40,12 +51,21 @@ func (h *LogHandler) HandleListDecisionLogs(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": logs,
-		"pagination": gin.H{
-			"total":      total,
-			"page":       page,
-			"pageSize":   pageSize,
-			"totalPages": (total + pageSize - 1) / pageSize,
-		},
+		"logs":  logs, // Changed from data to logs for consistency
+		"total": total,
+	})
+}
+
+// HandleListAllDecisionLogs 处理获取所有决策日志的请求
+func (h *LogHandler) HandleListAllDecisionLogs(c *gin.Context) {
+	logs, err := h.repo.ListAllDecisionLogs(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list all decision logs"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"logs":  logs,
+		"total": len(logs),
 	})
 }
